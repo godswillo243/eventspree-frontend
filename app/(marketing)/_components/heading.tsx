@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const Heading = () => {
   return (
-    <section className="relative layout-container w-full h-auto aspect-12/4 min-h-128 flex items-center justify-center ">
+    <section className=" relative layout-container w-full h-auto aspect-12/4 min-h-128 flex items-center justify-center ">
       <div className="z-10 relative w-full flex flex-col items-center justify-center gap-6">
         <h1 className="heading-1 text-center">Plan Your Event, End to End.</h1>
         <p className="prose-body font-medium text-center">

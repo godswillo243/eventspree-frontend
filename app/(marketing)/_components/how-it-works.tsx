@@ -34,7 +34,7 @@ const Item = ({
         {index}
       </p>
       <h4 className="text-lg text-neutral-800 font-semibold">{title}</h4>
-      <p className="prose-default ">{description}</p>
+      <p className="prose-body ">{description}</p>
     </div>
   );
 };

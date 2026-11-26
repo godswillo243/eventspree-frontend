@@ -1,7 +1,9 @@
-import React from "react";
+export default function HomePage() {
+  return (
+    <>
+      <h1 className="heading-2">Home</h1>
+    </>
+  );
+}
 
-const HomePage = () => {
-  return <div>HomePage</div>;
-};
-
-export default HomePage;
+export const instant = false;

@@ -54,4 +54,20 @@ export const signinSchema = z.strictObject({
   }),
 });
 
-export type FormValues = z.infer<typeof signinSchema | typeof signupSchema>;
+export const verifyEmailSchema = z.strictObject({
+  email: z.email({
+    error: (issue) =>
+      issue.input === undefined
+        ? "Email is required"
+        : "Please enter a valid email address",
+  }),
+  otp: z
+    .string()
+    .min(6, "OTP must be 6 digits long")
+    .refine((v) => /\d{6}$/.test(v), "Only digits are required"),
+});
+
+export type FormValues = z.infer<typeof signupSchema | typeof signinSchema>;
+export type SigninInput = z.infer<typeof signinSchema>;
+export type SignupInput = z.infer<typeof signupSchema>;
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;

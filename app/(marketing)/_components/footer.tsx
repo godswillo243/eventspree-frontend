@@ -38,7 +38,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-      <div className="mt-4 p-6 flex items-center">
+      <div className="mt-4 p-6 flex items-center gap-4 border-t border-neutral-200 ">
         <p className="prose-default mr-auto">
           © {year} Eventspree. All rights reserved.
         </p>

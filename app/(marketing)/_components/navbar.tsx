@@ -4,7 +4,9 @@ import Logo from "@/components/logo";
 import { useScrollTop } from "@/hooks/use-scroll-top";
 import { MARKETING_NAVBAR_HEIGHT, MOBILE_BREAKPOINT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth.store";
 import { MenuIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
@@ -29,6 +31,7 @@ const Navbar = () => {
 
   const isMobile = useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT}px)`);
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, user } = useAuthStore();
 
   useEffect(() => {
     const close = () => setIsOpen(false);
@@ -59,7 +62,7 @@ const Navbar = () => {
         <Link href={"/"}>
           <Logo />
         </Link>
-        <div className="sm:flex items-center gap-4 hidden">
+        <div className="sm:flex items-center gap-2 hidden">
           {navItems.map(({ href, label }) => (
             <Link href={href} key={label} className="link-muted button-ghost">
               {label}
@@ -67,9 +70,20 @@ const Navbar = () => {
           ))}
         </div>
         <div className="hidden sm:flex items-center gap-2">
-          <Link href={"/signin"} className="button-secondary">
-            Sign in
-          </Link>
+          {!isAuthenticated ? (
+            <Link href={"/auth/signin"} className="button-secondary">
+              Sign in
+            </Link>
+          ) : (
+            <div className="avatar">
+              <Image
+                alt={"avatar"}
+                src={user!.avatarUrl ?? "https://placehold.net/avatar.png"}
+                width={32}
+                height={32}
+              />
+            </div>
+          )}
         </div>
         <div className="flex sm:hidden">
           <button
@@ -95,10 +109,10 @@ const Navbar = () => {
               {label}
             </Link>
           ))}
-          <Link href={"/signin"} className="button-secondary mt-4">
+          <Link href={"/auth/signin"} className="button-secondary mt-4">
             Sign in
           </Link>
-          <Link href={"/signup"} className="button-primary">
+          <Link href={"/auth/signup"} className="button-primary">
             Sign up
           </Link>
         </div>

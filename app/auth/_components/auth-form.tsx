@@ -6,9 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import FormInput from "./form-input";
 import { FormValues, signinSchema, signupSchema } from "@/lib/validators/auth";
-import Image from "next/image";
 import Spinner from "@/components/spinner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { authService } from "@/services/auth.service";
+import GoogleButton from "./google-button";
+import { signin } from "@/lib/actions/auth";
 
 type AuthFormProps = {
   type: "signup" | "signin";
@@ -21,6 +23,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError,
   } = useForm<FormValues>({
     defaultValues: {
       email: "",
@@ -28,7 +31,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
       ...(isSignIn ? {} : { name: "" }),
     },
     resolver: zodResolver(isSignIn ? signinSchema : signupSchema),
-    reValidateMode: "onChange",
+    mode: "onChange",
   });
 
   const title = isSignIn ? "Welcome back " : "Create your account.";
@@ -37,39 +40,27 @@ const AuthForm = ({ type }: AuthFormProps) => {
     : "Create an account to start planning, list venues and list event services. ";
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    console.log(values);
-  };
-
-  const signInWithGoogle = () => {
-    const params = new URLSearchParams({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-      redirect_uri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI!,
-      response_type: "code",
-      scope: "openid email profile",
-      access_type: "offline",
-      prompt: "consent",
-    });
-    router.push(
-      `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
-    );
+    try {
+      if (isSignIn) {
+        await signin(values);
+      } else {
+        const { user } = await authService.signup(
+          values as FormValues & { name: string },
+        );
+        router.push(
+          `/auth/verify-email?${new URLSearchParams({ email: user.email })}`,
+        );
+      }
+    } catch (e) {
+      setError("root", { message: (e as Error).message });
+    }
   };
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center gap-2">
       <h2 className="heading-2">{title}</h2>
       <p className="prose-body max-w-sm text-center">{subtitle}</p>
-      <button
-        className="button-secondary w-full max-w-sm mt-8"
-        onClick={signInWithGoogle}
-      >
-        <Image
-          width="24"
-          height="24"
-          src="https://img.icons8.com/color/48/google-logo.png"
-          alt="google-logo"
-        />
-        Continue with Google
-      </button>
+      <GoogleButton />
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="w-full my-8 flex flex-col items-center justify-center gap-6"
@@ -109,7 +100,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
       <p className="prose-default text-center">
         {isSignIn ? "New to Eventspree? " : "Already have an account? "}
         <Link
-          href={isSignIn ? "/signup" : "/signin"}
+          href={isSignIn ? "/auth/signup" : "/auth/signin"}
           className="hover:text-neutral-800 font-semibold hover:underline"
         >
           {isSignIn ? "Create account" : "Sign in"}
